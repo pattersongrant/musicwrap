@@ -11,16 +11,16 @@ global info
 #mySQL boilerplate
 
 
-
+#Startup
 #Flask Boilerplate
 app = Flask(__name__)
 @app.route('/', methods=['POST', 'GET'])
 def hello_world():
     return render_template("login.html")
 
-
+#Continue with Spotify
 #Spotify Authorization Code Flow
-@app.route('/spotifyLogin', methods=['POST', 'GET'])
+@app.route('/home', methods=['POST', 'GET'])
 def login():
     global sp
     global info
@@ -34,9 +34,11 @@ def login():
     info = sp.me()
     return render_template("home.html", name=info['display_name'], pfp=info['images'][1]['url'])
 
+
+#Create new Wrap
+#newWrap page
 @app.route('/newWrap', methods=['POST', 'GET'])
 def newWrap():
-    print("newWrap!!!!")
     return "builder"
 
 
