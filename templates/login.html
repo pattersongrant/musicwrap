@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>musicwrap</title>
+</head>
+
+<style>
+body{
+    background-color: rgb(188, 246, 188);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    text-align: center;
+    padding: 125px 0px;
+    
+}
+
+h1 {
+    font-weight: 500;
+    
+}
+
+h3 {
+    font-weight: 300;
+    padding: 0px 0px 10px 10px;
+    
+}
+
+div {
+    background-color: white;
+    margin:auto;
+    width: 550px;
+    height: 400px;
+    padding-top: 80px;
+    border-radius: 30px;
+
+}
+.btn-login {
+    background-color: #1DB954;
+    font-size: 20px;
+    outline: none;
+    color: white;
+    padding:15px;
+    border-radius: 22px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+form {
+    padding-top: 15px;
+}
+
+footer {
+    position: fixed;
+    bottom: 20px;
+    width:100%;
+}
+p {
+    text-align: center;
+    padding:0px;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+</style>
+
+
+<body>
+    <div>
+    <h1>Welcome to Musicwrap!</h1>
+    <h3>--create sharable pages filled with playlists, songs, text, and custom backgrounds for you and your friends!--</h3>
+    <br>
+    <h3>In order for the app to work, please log in.</h3>
+    <br>
+    <form action="/spotifyLogin" method="post">
+        <button class = 'btn-login' type="submit" value="Login">Continue with Spotify</button>
+    </form>
+    </div>
+</body>
+
+<footer>
+    <p>Made by Grant Patterson</p>
+    <p><a href="mailto:pattersongrant06@gmail.com">pattersongrant06@gmail.com</a></p>
+</footer>
+</html>
