@@ -4,8 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
+<style>
+img{
+    border-radius: 5000px;
+}
+.btn-newWrap{
+    padding:15px;
+    border-radius: 10px;
+    background-color: white;
+
+}
+body{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    text-align: center;
+}
+
+</style>
 <body>
-    <h1>It worked!</h1>
+    <img src={{pfp}} alt="Profile Picture" width="200" height="200">
+    <h1>Welcome, {{name}}!</h1>
+    <form action="/newWrap" method="post">
+        <button class = 'btn-newWrap' type="submit" value="Login">Create New Wrap <i class="fa fa-pencil"></i></button>
+    </form>
+    <br><br>
+    <h3><u>Your Wraps</u></h3>
 </body>
 </html>

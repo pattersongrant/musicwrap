@@ -4,7 +4,12 @@ from spotipy.oauth2 import SpotifyOAuth
 import spotipy.util as util
 import mysql.connector
 
+#global var
+global sp
+global info
+
 #mySQL boilerplate
+
 
 
 #Flask Boilerplate
@@ -17,6 +22,8 @@ def hello_world():
 #Spotify Authorization Code Flow
 @app.route('/spotifyLogin', methods=['POST', 'GET'])
 def login():
+    global sp
+    global info
     CLIENT_ID = "6935cdfb27164343bad89b9ee5128309"
     CLIENT_SECRET = "894aa7f0f33c4ac4be55664f5ea5d960"
     REDIRECT_URI = "http://localhost:8000"
@@ -24,7 +31,15 @@ def login():
     token = util.prompt_for_user_token(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT_URI, show_dialog=True, scope=scope)
     if token:
         sp = spotipy.Spotify(auth=token)
-    return render_template("home.html")
+    info = sp.me()
+    return render_template("home.html", name=info['display_name'], pfp=info['images'][1]['url'])
+
+@app.route('/newWrap', methods=['POST', 'GET'])
+def newWrap():
+    print("newWrap!!!!")
+    return "builder"
+
+
 
 
 #Flask Boilerplate
