@@ -8,7 +8,10 @@ import mysql.connector
 global sp
 global info
 
+
 #mySQL boilerplate
+conn = mysql.connector.connect(host='localhost', password='Grant12549', user='root', database='musicwrap')
+cursor = conn.cursor()
 
 
 #Startup
@@ -17,6 +20,7 @@ app = Flask(__name__)
 @app.route('/', methods=['POST', 'GET'])
 def hello_world():
     return render_template("login.html")
+
 
 #Continue with Spotify
 #Spotify Authorization Code Flow
@@ -32,15 +36,60 @@ def login():
     if token:
         sp = spotipy.Spotify(auth=token)
     info = sp.me()
-    return render_template("home.html", name=info['display_name'], pfp=info['images'][1]['url'])
+
+    cursor.execute("SELECT wrap_name FROM wraps WHERE spotify_id = '" + info['id'] + "';")
+    nlist = []
+    for wrap_name in cursor:
+        wrap_name = str(wrap_name)
+        wrap_name = wrap_name.replace("('", "")
+        wrap_name = wrap_name.replace("',)", "")
+        nlist.append(wrap_name)
+    return render_template("home.html", name=info['display_name'], pfp=info['images'][1]['url'], strings_array = nlist)
 
 
-#Create new Wrap
-#newWrap page
+#CREATE NEW WRAP
 @app.route('/newWrap', methods=['POST', 'GET'])
 def newWrap():
-    return "builder"
+    global info
+    wrapName = request.form['wrapName']
+    print("INSERT INTO wraps(spotify_id, wrap_name) VALUES('" + info['id'] + "', '" + wrapName + "')")
+    cursor.execute("INSERT INTO wraps(spotify_id, wrap_name) VALUES('" + info['id'] + "', '" + wrapName + "')")
+    conn.commit()
+    cursor.execute("SELECT wrap_name FROM wraps WHERE spotify_id = '" + info['id'] + "';")
+    nlist = []
+    for wrap_name in cursor:
+        wrap_name = str(wrap_name)
+        wrap_name = wrap_name.replace("('", "")
+        wrap_name = wrap_name.replace("',)", "")
+        nlist.append(wrap_name)
 
+    return render_template("home.html", strings_array = nlist, name=info['display_name'], pfp=info['images'][1]['url'])
+
+
+#OPEN (X) WRAP
+@app.route('/openWrap', methods=['POST', 'GET'])
+def openWrap():
+    return(request.form['selected_item'])
+
+
+#DELETE WRAP
+@app.route('/deleteWrap', methods=['POST', 'GET'])
+def deleteWrap():
+    global info
+    toDelete = request.form['selected_item']
+    toDelete = toDelete.replace("('", "")
+    toDelete = toDelete.replace("',)", "")
+    cursor.execute("DELETE FROM wraps WHERE spotify_id = '" + info['id'] + "' AND wrap_name = '" + toDelete + "';")
+    conn.commit()
+
+    cursor.execute("SELECT wrap_name FROM wraps WHERE spotify_id = '" + info['id'] + "';")
+    nlist = []
+    for wrap_name in cursor:
+        wrap_name = str(wrap_name)
+        wrap_name = wrap_name.replace("('", "")
+        wrap_name = wrap_name.replace("',)", "")
+        nlist.append(wrap_name)
+    return render_template("home.html", strings_array = nlist, name=info['display_name'], pfp=info['images'][1]['url'])
 
 
 

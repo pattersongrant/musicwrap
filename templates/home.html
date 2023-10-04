@@ -25,20 +25,50 @@
     border-radius: 10px;
     background-color: white;
     cursor: pointer;
-    transition: 0.1s;
+    transition: 0.15s;
 
 }
 
 .btn-newWrap:hover{
-    box-shadow: 10px 10px 10px #262626;
+    box-shadow: 5px 5px 5px #262626;
 }
 
 
 body{
-    padding-top: 25px;
+    padding-top: 50px;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     text-align: center;
     
+}
+
+.delete{
+    padding-left: 300px;
+    
+}
+
+.container{
+    display:flex;
+    margin: auto;
+
+    
+}
+.bigcontainer {
+    margin:auto;
+    width:25%;
+}
+
+.container button{
+    padding:10px;
+    border-radius: 10px;
+    background-color: white;
+    transition: 0.15s;
+}
+.container button:hover{
+    background-color: #989898;
+}
+
+.input-box {
+    padding:8px;
 }
 
 </style>
@@ -46,9 +76,26 @@ body{
     <div class="pfp" style="background-image: url({{pfp}})"></div>
     <h1>Welcome, {{name}}!</h1>
     <form action="/newWrap" method="post">
-        <button class = 'btn-newWrap' type="submit" value="Login">Create New Wrap <i class="fa fa-pencil"></i></button>
+        <input class='input-box' type="text" placeholder="New Wrap Name" name="wrapName" maxlength="30" required><br>
+        <br>
+        <button class = 'btn-newWrap' type="submit">Create New Wrap <i class="fa fa-pencil"></i></button>
     </form>
     <br><br>
     <h3><u>Your Wraps</u></h3>
+        <div class= "bigcontainer">
+        {% for item in strings_array %}
+        <div class="container">
+            <form action="/openWrap" method="post">
+                <button type="submit" name="what">{{item}}</button>
+                <input type="hidden" name="selected_item" value="{{ item }}">
+            </form>
+            
+            <form class = 'delete' action="/deleteWrap" method="post">
+                <button type="submit" name="what">Delete Wrap</button>
+                <input type="hidden" name="selected_item" value="{{ item }}">
+            </form>
+        </div>
+        {% endfor %}
+    </div>
 </body>
 </html>
