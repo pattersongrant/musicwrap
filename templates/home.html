@@ -21,7 +21,7 @@
 }
 
 .btn-newWrap{
-    padding:15px;
+    padding:10px;
     border-radius: 10px;
     background-color: white;
     cursor: pointer;
@@ -70,14 +70,18 @@ body{
 .input-box {
     padding:8px;
 }
+h3{
+    padding-right:300px;
+    
+}
+
 
 </style>
 <body>
     <div class="pfp" style="background-image: url({{pfp}})"></div>
     <h1>Welcome, {{name}}!</h1>
-    <form action="/newWrap" method="post">
-        <input class='input-box' type="text" placeholder="New Wrap Name" name="wrapName" maxlength="30" required><br>
-        <br>
+    <form class = 'newWraps' action="/newWrap" method="post">
+        <input class='input-box' type="text" placeholder="New Wrap Name" name="wrapName" maxlength="30" required>
         <button class = 'btn-newWrap' type="submit">Create New Wrap <i class="fa fa-pencil"></i></button>
     </form>
     <br><br>

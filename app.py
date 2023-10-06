@@ -1,8 +1,16 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, session
+from flask_session import Session
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import spotipy.util as util
 import mysql.connector
+import os
+
+
+#citation
+#Authorization code is from https://github.com/spotipy-dev/spotipy/blob/master/examples/app.py
+
+
 
 #global var
 global sp
@@ -17,9 +25,33 @@ cursor = conn.cursor()
 #Startup
 #Flask Boilerplate
 app = Flask(__name__)
+
+app.config['SECRET_KEY'] = os.urandom(64)
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = './.flask_session/'
+Session(app)
+
 @app.route('/', methods=['POST', 'GET'])
 def hello_world():
-    return render_template("login.html")
+    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+    CLIENT_ID = "6935cdfb27164343bad89b9ee5128309"
+    CLIENT_SECRET = "894aa7f0f33c4ac4be55664f5ea5d960"
+    REDIRECT_URI = "https://anchovy-emerging-definitely.ngrok-free.app/"
+    auth_manager = spotipy.oauth2.SpotifyOAuth(scope='user-read-currently-playing playlist-modify-private',client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT_URI,
+                                               cache_handler=cache_handler,
+                                               show_dialog=True)
+    if request.args.get("code"):
+        # Step 2. Being redirected from Spotify auth page
+        auth_manager.get_access_token(request.args.get("code"))
+        return redirect('/')
+
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        # Step 1. Display sign in link when no token
+        auth_url = auth_manager.get_authorize_url()
+        return f'<h2><a href="{auth_url}">Sign in</a></h2>'
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+
+    return (spotify.me()["display_name"])
 
 
 #Continue with Spotify
@@ -69,8 +101,13 @@ def newWrap():
 #OPEN (X) WRAP
 @app.route('/openWrap', methods=['POST', 'GET'])
 def openWrap():
-    return(request.form['selected_item'])
+    request.form['selected_item']
+    return(render_template("builder.html"))
 
+#ADD PLAYLIST
+@app.route('/addPlaylist', methods=['POST', 'GET'])
+def addPlaylist():
+    return("wowie")
 
 #DELETE WRAP
 @app.route('/deleteWrap', methods=['POST', 'GET'])
