@@ -113,7 +113,9 @@ def newWrap():
         conn.commit()
         conn.commit()
     except:
-        session['errorCode'] = "Error: Invalid Name(Special Characters, Spaces?)"
+        session['errorCode'] = "Error: Invalid Name(Special Characters/Spaces/Duplicate Name?)"
+    else:
+        session['errorCode'] = ""
     cursor.execute("SELECT wrap_name FROM wraps WHERE spotify_id = '" + info['id'] + "';")
     for wrap_name in cursor:
         wrap_name = str(wrap_name)
@@ -245,7 +247,7 @@ def startPlayback():
     try:
         spotify.start_playback(context_uri=str(request.form['playlist_item']))
     except:
-        session['errorCode'] = "Error: Need an Active Device"
+        session['errorCode'] = "Error: Need an Active Device (Go hit play on any spotify device!)"
     else:
         session['errorCode'] = ""
     return redirect('/reloadBuild')
