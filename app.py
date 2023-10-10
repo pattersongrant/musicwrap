@@ -11,15 +11,9 @@ import os
 #Authorization code is from https://github.com/spotipy-dev/spotipy/blob/master/examples/app.py
 
 
-
-#global var
-global sp
-global info
-
-
 #mySQL boilerplate
 conn = mysql.connector.connect(host='localhost', password='Grant12549', user='root', database='musicwrap')
-cursor = conn.cursor()
+cursor = conn.cursor(buffered=True)
 
 
 #Startup
@@ -34,10 +28,10 @@ Session(app)
 @app.route('/', methods=['POST', 'GET'])
 def hello_world():
     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
-    CLIENT_ID = "6935cdfb27164343bad89b9ee5128309"
-    CLIENT_SECRET = "894aa7f0f33c4ac4be55664f5ea5d960"
-    REDIRECT_URI = "https://anchovy-emerging-definitely.ngrok-free.app/"
-    auth_manager = spotipy.oauth2.SpotifyOAuth(scope='user-read-currently-playing playlist-modify-private',client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT_URI,
+    #CLIENT_ID = "6935cdfb27164343bad89b9ee5128309"
+    #CLIENT_SECRET = "894aa7f0f33c4ac4be55664f5ea5d960"
+    #REDIRECT_URI = "https://anchovy-emerging-definitely.ngrok-free.app/"
+    auth_manager = spotipy.oauth2.SpotifyOAuth(scope='user-read-currently-playing playlist-modify-private',
                                                cache_handler=cache_handler,
                                                show_dialog=True)
     if request.args.get("code"):
@@ -48,26 +42,10 @@ def hello_world():
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         # Step 1. Display sign in link when no token
         auth_url = auth_manager.get_authorize_url()
-        return f'<h2><a href="{auth_url}">Sign in</a></h2>'
+        #return f'<h2><a href="{auth_url}">Sign in</a></h2>'
+        return render_template("login.html", auth=auth_url)
     spotify = spotipy.Spotify(auth_manager=auth_manager)
-
-    return (spotify.me()["display_name"])
-
-
-#Continue with Spotify
-#Spotify Authorization Code Flow
-@app.route('/home', methods=['POST', 'GET'])
-def login():
-    global sp
-    global info
-    CLIENT_ID = "6935cdfb27164343bad89b9ee5128309"
-    CLIENT_SECRET = "894aa7f0f33c4ac4be55664f5ea5d960"
-    REDIRECT_URI = "http://localhost:8000"
-    scope = "playlist-read-private playlist-read-collaborative user-library-read user-modify-playback-state"
-    token = util.prompt_for_user_token(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT_URI, show_dialog=True, scope=scope)
-    if token:
-        sp = spotipy.Spotify(auth=token)
-    info = sp.me()
+    info = spotify.me()
 
     cursor.execute("SELECT wrap_name FROM wraps WHERE spotify_id = '" + info['id'] + "';")
     nlist = []
@@ -79,10 +57,46 @@ def login():
     return render_template("home.html", name=info['display_name'], pfp=info['images'][1]['url'], strings_array = nlist)
 
 
+#Continue with Spotify
+#Spotify Authorization Code Flow
+#@app.route('/home', methods=['POST', 'GET'])
+#def login():
+#    #global sp
+#    #global info
+#    #CLIENT_ID = "6935cdfb27164343bad89b9ee5128309"
+#    #CLIENT_SECRET = "894aa7f0f33c4ac4be55664f5ea5d960"
+#    #REDIRECT_URI = "http://localhost:8000"
+#    #scope = "playlist-read-private playlist-read-collaborative user-library-read user-modify-playback-state"
+#    #token = util.prompt_for_user_token(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT_URI, show_dialog=True, scope=scope)
+#    #if token:
+#    #    sp = spotipy.Spotify(auth=token)
+#    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+#    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+#    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+#        return redirect('/')
+#    spotify = spotipy.Spotify(auth_manager=auth_manager)
+#    info = spotify.me()
+#
+#    cursor.execute("SELECT wrap_name FROM wraps WHERE spotify_id = '" + info['id'] + "';")
+#    nlist = []
+#    for wrap_name in cursor:
+#        wrap_name = str(wrap_name)
+#        wrap_name = wrap_name.replace("('", "")
+#        wrap_name = wrap_name.replace("',)", "")
+#        nlist.append(wrap_name)
+#    return render_template("home.html", name=info['display_name'], pfp=info['images'][1]['url'], strings_array = nlist)
+
+
 #CREATE NEW WRAP
 @app.route('/newWrap', methods=['POST', 'GET'])
 def newWrap():
-    global info
+    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    info = spotify.me()
+
     wrapName = request.form['wrapName']
     print("INSERT INTO wraps(spotify_id, wrap_name) VALUES('" + info['id'] + "', '" + wrapName + "')")
     cursor.execute("INSERT INTO wraps(spotify_id, wrap_name) VALUES('" + info['id'] + "', '" + wrapName + "')")
@@ -95,28 +109,72 @@ def newWrap():
         wrap_name = wrap_name.replace("',)", "")
         nlist.append(wrap_name)
 
+    cursor.execute("CREATE TABLE " + (wrapName + "sp0tify92id" + info['id']) + " (spotify_id TEXT, playlist VARCHAR(1000), location VARCHAR(10));")
+    conn.commit()
     return render_template("home.html", strings_array = nlist, name=info['display_name'], pfp=info['images'][1]['url'])
 
 
 #OPEN (X) WRAP
 @app.route('/openWrap', methods=['POST', 'GET'])
 def openWrap():
-    request.form['selected_item']
-    return(render_template("builder.html"))
+    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    info = spotify.me()
+    current_wrap = request.form['selected_item']
+    session['current_wrap'] = current_wrap
+    playlists_array=[]
+    covers_array=[]
+    cursor.execute("SELECT playlist FROM " + (current_wrap + "sp0tify92id" + info['id']) + ";")
+    for playlist in cursor:
+        playlist = str(playlist)
+        playlist = playlist.replace("('", "")
+        playlist = playlist.replace("',)", "")
+        playlists_array.append(playlist) 
+        covers_array.append(spotify.playlist_cover_image(playlist)[0]['url'])
+        print(spotify.playlist_cover_image(playlist)[0]['url'])
+    return render_template("builder.html", current=current_wrap, playlists_array=playlists_array,covers_array=covers_array)
 
 #ADD PLAYLIST
 @app.route('/addPlaylist', methods=['POST', 'GET'])
 def addPlaylist():
-    return("wowie")
+    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    info = spotify.me()
+    newPlaylist = request.form['newPlaylist']
+    newPlaylist = str(newPlaylist)
+    current_wrap = request.form['selected_item']
+    cursor.execute("INSERT INTO " + (current_wrap + "sp0tify92id" + info['id']) + "(playlist) VALUES('" + newPlaylist + "');")
+    conn.commit()
+    #playlists_array=[]
+    #covers_array=[]
+    #cursor.execute("SELECT playlist FROM " + (current_wrap + "sp0tify92id" + info['id']) + ";")
+    #for playlist in cursor:
+    #    playlist = str(playlist)
+    #    playlists_array.append(playlist) 
+    #    #covers_array.append(spotify.playlist_cover_image(playlist)[0]['url'])
+    return redirect('/reloadBuild')
 
 #DELETE WRAP
 @app.route('/deleteWrap', methods=['POST', 'GET'])
 def deleteWrap():
-    global info
+    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    info = spotify.me()
+
     toDelete = request.form['selected_item']
     toDelete = toDelete.replace("('", "")
     toDelete = toDelete.replace("',)", "")
     cursor.execute("DELETE FROM wraps WHERE spotify_id = '" + info['id'] + "' AND wrap_name = '" + toDelete + "';")
+    cursor.execute("DROP TABLE " + (toDelete + "sp0tify92id" + info['id']) + ";")
     conn.commit()
 
     cursor.execute("SELECT wrap_name FROM wraps WHERE spotify_id = '" + info['id'] + "';")
@@ -126,10 +184,47 @@ def deleteWrap():
         wrap_name = wrap_name.replace("('", "")
         wrap_name = wrap_name.replace("',)", "")
         nlist.append(wrap_name)
+    
     return render_template("home.html", strings_array = nlist, name=info['display_name'], pfp=info['images'][1]['url'])
 
+#CLICK PLAYLIST
+@app.route('/startPlayback', methods=['POST', 'GET'])
+def startPlayback():
+    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    info = spotify.me()
+    print("started playing!")
+    #sp.start_playback(context_uri=newPlaylist)
+    print(str(request.form['playlist_item']))
+    print(str(request.form['playlist_item']))
 
+    return redirect('/reloadBuild')
 
+#reloadbuilder
+@app.route('/reloadBuild')
+def reload():
+    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    info = spotify.me()
+    current_wrap = session['current_wrap']
+    playlists_array=[]
+    covers_array=[]
+    cursor.execute("SELECT playlist FROM " + (current_wrap + "sp0tify92id" + info['id']) + ";")
+    for playlist in cursor:
+        playlist = str(playlist)
+        playlist = playlist.replace("('", "")
+        playlist = playlist.replace("',)", "")
+        playlists_array.append(playlist) 
+        covers_array.append(spotify.playlist_cover_image(playlist)[0]['url'])
+        print(spotify.playlist_cover_image(playlist)[0]['url'])
+    return render_template("builder.html", current=current_wrap, playlists_array=playlists_array,covers_array=covers_array)
+    
 #Flask Boilerplate
 if __name__=='__main__':
     app.debug = True

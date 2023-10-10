@@ -11,10 +11,21 @@
 </style>
 
 <body>
+    <h1>{{current}}</h1>
     <form width="336" height="69" action="/addPlaylist" method="post">
-        <input type="text" placeholder="Playlist Link" name="playlist" required><br>
-        <button type="submit" value="Add">Name</button>
+        <input type="text" placeholder="Playlist Link" name="newPlaylist" required><br>
+        <button type="submit" value="Add">Add Playlist</button>
+        <input type="hidden" name="selected_item" value="{{current}}">
     </form>
+    {% for item in playlists_array %}
+    <form action="/startPlayback" method="post">
+        <button type="submit" value="Add"><img src="" alt ="{{item}}" width="200" height="200"></button>
+        <input type="hidden" name="playlist_item" value="{{item}}">
+    </form>
+    {% endfor %}
+    {% for item in covers_array %}
+    <img src="{{item}}" alt ="{{item}}" width="200" height="200">
+    {% endfor %}
     
 </body>
 </html>

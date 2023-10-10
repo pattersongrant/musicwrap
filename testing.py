@@ -1,4 +1,2 @@
-text = "('dglksadkghjaskdjghjksadg'),"
-text = text[2:-3]
-
-print(text)
+array = [0, 1 , 2]
+print(array[0])
