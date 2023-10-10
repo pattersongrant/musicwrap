@@ -1,2 +1,3 @@
-array = [0, 1 , 2]
-print(array[0])
+array = [{"hello": "welp"}, {"okay" : "hi"}]
+hello="hello"
+print(hello.array)

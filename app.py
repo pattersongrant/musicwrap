@@ -5,6 +5,9 @@ from spotipy.oauth2 import SpotifyOAuth
 import spotipy.util as util
 import mysql.connector
 import os
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
 
 
 #citation
@@ -27,6 +30,7 @@ Session(app)
 
 @app.route('/', methods=['POST', 'GET'])
 def hello_world():
+    session['errorCode'] = ''
     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
     #CLIENT_ID = "6935cdfb27164343bad89b9ee5128309"
     #CLIENT_SECRET = "894aa7f0f33c4ac4be55664f5ea5d960"
@@ -98,20 +102,21 @@ def newWrap():
     info = spotify.me()
 
     wrapName = request.form['wrapName']
-    print("INSERT INTO wraps(spotify_id, wrap_name) VALUES('" + info['id'] + "', '" + wrapName + "')")
-    cursor.execute("INSERT INTO wraps(spotify_id, wrap_name) VALUES('" + info['id'] + "', '" + wrapName + "')")
-    conn.commit()
-    cursor.execute("SELECT wrap_name FROM wraps WHERE spotify_id = '" + info['id'] + "';")
     nlist = []
+    try:
+        cursor.execute("CREATE TABLE " + (wrapName + "sp0tify92id" + info['id']) + " (spotify_id TEXT, row_id INT AUTO_INCREMENT, playlist VARCHAR(1000), background VARCHAR(1000), PRIMARY KEY(row_id));")
+        cursor.execute("INSERT INTO wraps(spotify_id, wrap_name) VALUES('" + info['id'] + "', '" + wrapName + "')")
+        conn.commit()
+        conn.commit()
+    except:
+        session['errorCode'] = "Error: Invalid Name(Special Characters, Spaces?)"
+    cursor.execute("SELECT wrap_name FROM wraps WHERE spotify_id = '" + info['id'] + "';")
     for wrap_name in cursor:
         wrap_name = str(wrap_name)
         wrap_name = wrap_name.replace("('", "")
         wrap_name = wrap_name.replace("',)", "")
         nlist.append(wrap_name)
-
-    cursor.execute("CREATE TABLE " + (wrapName + "sp0tify92id" + info['id']) + " (spotify_id TEXT, playlist VARCHAR(1000), location VARCHAR(10));")
-    conn.commit()
-    return render_template("home.html", strings_array = nlist, name=info['display_name'], pfp=info['images'][1]['url'])
+    return render_template("home.html", strings_array = nlist, name=info['display_name'], pfp=info['images'][1]['url'], errorCode=session['errorCode'])
 
 
 #OPEN (X) WRAP
@@ -135,7 +140,14 @@ def openWrap():
         playlists_array.append(playlist) 
         covers_array.append(spotify.playlist_cover_image(playlist)[0]['url'])
         print(spotify.playlist_cover_image(playlist)[0]['url'])
-    return render_template("builder.html", current=current_wrap, playlists_array=playlists_array,covers_array=covers_array)
+    bg=""
+    cursor.execute("SELECT background FROM " + (current_wrap + "sp0tify92id" + info['id']) + " WHERE row_id=1;")
+    for background in cursor:
+        background = str(background)
+        background = background.replace("('", "")
+        background = background.replace("',)", "")
+        bg = background
+    return render_template("builder.html", current=current_wrap, playlists_array=playlists_array,covers_array=covers_array,background=bg)
 
 #ADD PLAYLIST
 @app.route('/addPlaylist', methods=['POST', 'GET'])
@@ -149,6 +161,7 @@ def addPlaylist():
     newPlaylist = request.form['newPlaylist']
     newPlaylist = str(newPlaylist)
     current_wrap = request.form['selected_item']
+    
     cursor.execute("INSERT INTO " + (current_wrap + "sp0tify92id" + info['id']) + "(playlist) VALUES('" + newPlaylist + "');")
     conn.commit()
     #playlists_array=[]
@@ -159,6 +172,33 @@ def addPlaylist():
     #    playlists_array.append(playlist) 
     #    #covers_array.append(spotify.playlist_cover_image(playlist)[0]['url'])
     return redirect('/reloadBuild')
+
+#ADD BACKGROUND
+@app.route('/addBackground', methods=['POST', 'GET'])
+def addBackground():
+    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    info = spotify.me()
+    newBackground = request.form['newBackground']
+    newBackground = str(newBackground)
+    current_wrap = request.form['selected_item']
+
+    cursor.execute("UPDATE " + (current_wrap + "sp0tify92id" + info['id']) + " SET background = '" + newBackground + "' WHERE row_id=1;")
+    conn.commit()
+    #playlists_array=[]
+    #covers_array=[]
+    #cursor.execute("SELECT playlist FROM " + (current_wrap + "sp0tify92id" + info['id']) + ";")
+    #for playlist in cursor:
+    #    playlist = str(playlist)
+    #    playlists_array.append(playlist) 
+    #    #covers_array.append(spotify.playlist_cover_image(playlist)[0]['url'])
+    return redirect('/reloadBuild')
+
+
+
 
 #DELETE WRAP
 @app.route('/deleteWrap', methods=['POST', 'GET'])
@@ -185,6 +225,7 @@ def deleteWrap():
         wrap_name = wrap_name.replace("',)", "")
         nlist.append(wrap_name)
     
+    
     return render_template("home.html", strings_array = nlist, name=info['display_name'], pfp=info['images'][1]['url'])
 
 #CLICK PLAYLIST
@@ -197,10 +238,12 @@ def startPlayback():
     spotify = spotipy.Spotify(auth_manager=auth_manager)
     info = spotify.me()
     print("started playing!")
-    #sp.start_playback(context_uri=newPlaylist)
-    print(str(request.form['playlist_item']))
-    print(str(request.form['playlist_item']))
-
+    try:
+        spotify.start_playback(context_uri=str(request.form['playlist_item']))
+    except:
+        session['errorCode'] = "Error: Need an Active Device"
+    else:
+        session['errorCode'] = ""
     return redirect('/reloadBuild')
 
 #reloadbuilder
@@ -223,7 +266,14 @@ def reload():
         playlists_array.append(playlist) 
         covers_array.append(spotify.playlist_cover_image(playlist)[0]['url'])
         print(spotify.playlist_cover_image(playlist)[0]['url'])
-    return render_template("builder.html", current=current_wrap, playlists_array=playlists_array,covers_array=covers_array)
+    bg=""
+    cursor.execute("SELECT background FROM " + (current_wrap + "sp0tify92id" + info['id']) + " WHERE row_id=1;")
+    for background in cursor:
+        background = str(background)
+        background = background.replace("('", "")
+        background = background.replace("',)", "")
+        bg = background
+    return render_template("builder.html", current=current_wrap, playlists_array=playlists_array,covers_array=covers_array, errorCode=session['errorCode'],background=bg)
     
 #Flask Boilerplate
 if __name__=='__main__':

@@ -8,24 +8,87 @@
 
 </head>
 <style>
-</style>
+body {
+    text-align: center;
+    padding: 15px;
+    background-image: url({{background}});
+    background-repeat: no-repeat;
+    background-size: 100%;
 
+}
+
+.elements {
+    padding: 15px;
+    display: flex;
+    width:75%;
+    margin:auto;
+    height:100%;
+    flex-wrap:wrap;
+    justify-content: center;
+
+}
+
+.btn-playlist {
+    padding: 0px;
+    transition:0.3s;
+    margin:auto;
+    display:auto;   
+
+}
+
+.btn-playlist:hover{
+    background-color: rgba(0,0,0,1);
+}
+
+.bigdiv {
+    margin:auto;
+    display:flex;
+}
+
+.topelements {
+    background-color: white;
+    width:fit-content;
+    height:fit-content;
+    padding:15px;
+    padding-top:8px;
+    padding-bottom:20px;
+    border-radius: 25px;
+    outline:1px solid black;
+    margin:auto;
+
+}
+
+h3{
+    color:red;
+}
+
+
+</style>
 <body>
+    <div class="topelements">
+    <h3>{{errorCode}}</h3>
     <h1>{{current}}</h1>
     <form width="336" height="69" action="/addPlaylist" method="post">
         <input type="text" placeholder="Playlist Link" name="newPlaylist" required><br>
         <button type="submit" value="Add">Add Playlist</button>
         <input type="hidden" name="selected_item" value="{{current}}">
     </form>
+    <form width="336" height="69" action="/addBackground" method="post">
+        <input type="text" placeholder="Image Link" name="newBackground" required><br>
+        <button type="submit" value="Add">Add Background</button>
+        <input type="hidden" name="selected_item" value="{{current}}">
+    </form>
+    </div>
+    <div class="bigdiv">
+    <div class = "elements">
     {% for item in playlists_array %}
     <form action="/startPlayback" method="post">
-        <button type="submit" value="Add"><img src="" alt ="{{item}}" width="200" height="200"></button>
+        <button class="btn-playlist" type="submit" value="Add"><img src="{{covers_array[loop.index-1]}}" alt ="{{item}}" width="200" height="200"></button>
         <input type="hidden" name="playlist_item" value="{{item}}">
     </form>
     {% endfor %}
-    {% for item in covers_array %}
-    <img src="{{item}}" alt ="{{item}}" width="200" height="200">
-    {% endfor %}
+    </div>
+</div>
     
 </body>
 </html>
