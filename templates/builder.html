@@ -32,12 +32,29 @@ body {
     padding: 0px;
     transition:0.3s;
     margin:auto;
-    display:auto;   
+    display:auto;
+    background-color: transparent;   
+    width:200px;
+    height:200px;
+
+    max-width: 200px;
+    object-fit: fill;
+    background-size:cover;
+    background-position: center center;
 
 }
 
 .btn-playlist:hover{
     background-color: rgba(0,0,0,1);
+    border-radius: 50px;
+    border: 2px solid rgba(0,0,0,1)
+}
+.img-playlist:hover{
+    background-color: rgba(0,0,0,1);
+    border-radius: 50px;
+}
+.img-playlist{
+    transition: 0.3s;
 }
 
 .bigdiv {
@@ -46,7 +63,8 @@ body {
 }
 
 .topelements {
-    background-color: white;
+    background-color: transparent;
+    backdrop-filter: blur(20px);
     width:fit-content;
     height:fit-content;
     padding:15px;
@@ -61,6 +79,10 @@ body {
 h3{
     color:red;
 }
+.btn-home{
+    background-color: white;
+    padding:5px;
+}
 
 
 </style>
@@ -68,13 +90,16 @@ h3{
     <div class="topelements">
     <h3>{{errorCode}}</h3>
     <h1>{{current}}</h1>
+    <form action="/" method="post">
+        <button class = 'btn-home' type="submit">Back Home</button>
+    </form><br>
     <form width="336" height="69" action="/addPlaylist" method="post">
-        <input type="text" placeholder="Playlist Link" name="newPlaylist" required><br>
+        <input type="text" placeholder="Playlist Link" name="newPlaylist" required>
         <button type="submit" value="Add">Add Playlist</button>
         <input type="hidden" name="selected_item" value="{{current}}">
     </form>
     <form width="336" height="69" action="/addBackground" method="post">
-        <input type="text" placeholder="Image Link" name="newBackground" required><br>
+        <input type="text" placeholder="Image Link" name="newBackground" required>
         <button type="submit" value="Add">Add Background</button>
         <input type="hidden" name="selected_item" value="{{current}}">
     </form>
@@ -83,7 +108,7 @@ h3{
     <div class = "elements">
     {% for item in playlists_array %}
     <form action="/startPlayback" method="post">
-        <button class="btn-playlist" type="submit" value="Add"><img src="{{covers_array[loop.index-1]}}" alt ="{{item}}" width="200" height="200"></button>
+        <button class="btn-playlist" type="submit" value="Add" style="background-image: url({{covers_array[loop.index-1]}})"></button>
         <input type="hidden" name="playlist_item" value="{{item}}">
     </form>
     {% endfor %}

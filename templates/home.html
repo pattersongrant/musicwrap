@@ -74,6 +74,19 @@ h3{
     padding-right:300px;
     
 }
+.btn-logOut{
+    background-color: lightgreen;
+    border-radius: 10px;
+    border:none;
+}
+.btn-logOut:hover{
+    background-color: green;
+}
+footer {
+    position: fixed;
+    bottom: 20px;
+    width:100%;
+}
 
 
 </style>
@@ -103,4 +116,9 @@ h3{
         {% endfor %}
     </div>
 </body>
+<footer>
+<form action="/sign_out" method="post">
+    <button class = 'btn-logOut' type="submit">Log out</button>
+</form>
+</footer>
 </html>

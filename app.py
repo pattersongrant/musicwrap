@@ -9,7 +9,6 @@ from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 
-
 #citation
 #Authorization code is from https://github.com/spotipy-dev/spotipy/blob/master/examples/app.py
 
@@ -30,12 +29,13 @@ Session(app)
 
 @app.route('/', methods=['POST', 'GET'])
 def hello_world():
-    session['errorCode'] = ''
+    load_dotenv(find_dotenv())
     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
     #CLIENT_ID = "6935cdfb27164343bad89b9ee5128309"
     #CLIENT_SECRET = "894aa7f0f33c4ac4be55664f5ea5d960"
     #REDIRECT_URI = "https://anchovy-emerging-definitely.ngrok-free.app/"
-    auth_manager = spotipy.oauth2.SpotifyOAuth(scope='user-read-currently-playing playlist-modify-private',
+    
+    auth_manager = spotipy.oauth2.SpotifyOAuth(scope='playlist-read-private playlist-read-collaborative user-library-read user-modify-playback-state user-read-currently-playing user-read-playback-state',
                                                cache_handler=cache_handler,
                                                show_dialog=True)
     if request.args.get("code"):
@@ -58,9 +58,13 @@ def hello_world():
         wrap_name = wrap_name.replace("('", "")
         wrap_name = wrap_name.replace("',)", "")
         nlist.append(wrap_name)
+    session['errorCode'] = ''
     return render_template("home.html", name=info['display_name'], pfp=info['images'][1]['url'], strings_array = nlist)
 
-
+@app.route('/sign_out', methods=['POST', 'GET'])
+def sign_out():
+    session.pop("token_info", None)
+    return redirect('/')
 #Continue with Spotify
 #Spotify Authorization Code Flow
 #@app.route('/home', methods=['POST', 'GET'])
