@@ -14,7 +14,7 @@ load_dotenv(find_dotenv())
 
 
 #mySQL boilerplate
-conn = mysql.connector.connect(host='localhost', password='Grant12549', user='root', database='musicwrap')
+conn = mysql.connector.connect(host='localhost', password='password', user='root', database='musicwrap')
 cursor = conn.cursor(buffered=True)
 
 
