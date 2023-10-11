@@ -76,11 +76,13 @@ body {
     outline:1px solid black;
     margin:auto;
     background-color: rgba(255,255,255,0.35);
+    padding-right: 70px;
+    padding-left:70px;
 
 }
 
 h3{
-    color:black;
+    color:rgb(0, 0, 0);
 }
 .btn-home{
     background-color: white;
@@ -92,30 +94,15 @@ h3{
 <body>
     <div class="topelements">
     <h3>{{errorCode}}</h3>
-    <h3>{{shareCode}}</h3>
     <h1>{{current}}</h1>
     <form action="/" method="post">
         <button class = 'btn-home' type="submit">Back Home</button>
-    </form>
-    <form action="/generateCode" method="post">
-        <button class = 'btn-home' type="submit">Generate Share Link</button>
-    </form><br>
-    
-    <form width="336" height="69" action="/addPlaylist" method="post">
-        <input type="text" placeholder="Playlist Link" name="newPlaylist" required>
-        <button type="submit" value="Add">Add Playlist</button>
-        <input type="hidden" name="selected_item" value="{{current}}">
-    </form>
-    <form width="336" height="69" action="/addBackground" method="post">
-        <input type="text" placeholder="Image Link" name="newBackground" required>
-        <button type="submit" value="Add">Add Background</button>
-        <input type="hidden" name="selected_item" value="{{current}}">
     </form>
     </div>
     <div class="bigdiv">
     <div class = "elements">
     {% for item in playlists_array %}
-    <form action="/startPlayback" method="post">
+    <form action="/viewerPlayback" method="post">
         <button class="btn-playlist" type="submit" value="Add" style="background-image: url({{covers_array[loop.index-1]}})"></button>
         <input type="hidden" name="playlist_item" value="{{item}}">
     </form>

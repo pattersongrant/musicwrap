@@ -6,6 +6,7 @@
     <title>Musicwrap | Home</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="icon" href="../static/favicon.ico" type="image/x-icon">
+    <!--https://css-tricks.com/snippets/css/typewriter-effect/-->
 </head>
 <style>
 
@@ -88,17 +89,84 @@ footer {
     width:100%;
 }
 
+.typewriter-container {
+    display:flex;
+    text-align: center;
+    justify-content: center;
+}
+
+.typewriter h1 {
+  overflow: hidden; /* Ensures the content is not revealed until the animation */
+  border-right: .10em solid orange; /* The typwriter cursor */
+  white-space: nowrap; /* Keeps the content on a single line */
+  margin: 0 auto; /* Gives that scrolling effect as the typing happens */
+  letter-spacing: .05em; /* Adjust as needed */
+  animation: 
+    typing 1.5s steps(27, end),
+    blink-caret 1s step-end infinite;
+
+}
+
+/* The typing effect */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+/* The typewriter cursor effect */
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: rgb(0, 0, 0); }
+}
+/* Add a black background color to the top navigation */
+.topnav {
+  background-color: #333;
+  overflow: hidden;
+  position:fixed;
+  top:0px;
+}
+
+/* Style the links inside the navigation bar */
+.topnav a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+/* Change the color of links on hover */
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+/* Add a color to the active/current link */
+.topnav a.active {
+  background-color: #04AA6D;
+  color: white;
+}
 
 </style>
+<div class="topnav">
+    <a class="active" href="/">Home</a>
+    <a href="/tutorial">Tutorial</a>
+    <a href="/about">About</a>
+</div>
 <body>
     <div class="pfp" style="background-image: url({{pfp}})"></div>
     <h3>{{errorCode}}</h3>
-    <h1>Welcome, {{name}}!</h1>
+    <div class = "typewriter-container">
+    <div class = 'typewriter'>
+        <h1>Welcome, {{name}}!</h1> <br>
+    </div>
+</div>
     <form class = 'newWraps' action="/newWrap" method="post">
         <input class='input-box' type="text" placeholder="New Wrap Name" name="wrapName" maxlength="30" required>
         <button class = 'btn-newWrap' type="submit">Create New Wrap <i class="fa fa-pencil"></i></button>
     </form>
-    <br><br>
+    <br>
     <h3><u>Your Wraps</u></h3>
         <div class= "bigcontainer">
         {% for item in strings_array %}
