@@ -7,8 +7,26 @@ import mysql.connector
 import os
 from dotenv import load_dotenv, find_dotenv
 import hashlib
+#For PA deployement:
+#add below code; turn all cursor.execute into DB.query;Remove inital connection code thing
+#class DB:
+#  conn = None
+#
+#  def connect(self):
+#    self.conn = mysql.connector.connect(host='localhost', password='password', user='root', database='musicwrap')
+#
+#  def query(self, sql):
+#    try:
+#      cursor = self.conn.cursor()
+#      cursor.execute(sql)
+#    except:
+#      self.connect()
+#      cursor = self.conn.cursor()
+#      cursor.execute(sql)
+#    return cursor
 
 load_dotenv(find_dotenv())
+
 
 #citation
 #Authorization code is from https://github.com/spotipy-dev/spotipy/blob/master/examples/app.py
@@ -17,7 +35,6 @@ load_dotenv(find_dotenv())
 #mySQL boilerplate
 conn = mysql.connector.connect(host='localhost', password='password', user='root', database='musicwrap')
 cursor = conn.cursor(buffered=True)
-
 
 #Startup
 #Flask Boilerplate
@@ -28,14 +45,11 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = './.flask_session/'
 Session(app)
 
+#STARTUP/MAIN REDIRECT
 @app.route('/', methods=['POST', 'GET'])
 def hello_world():
     load_dotenv(find_dotenv())
-    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
-    #CLIENT_ID = "6935cdfb27164343bad89b9ee5128309"
-    #CLIENT_SECRET = "894aa7f0f33c4ac4be55664f5ea5d960"
-    #REDIRECT_URI = "https://anchovy-emerging-definitely.ngrok-free.app/"
-    
+    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)    
     auth_manager = spotipy.oauth2.SpotifyOAuth(scope='playlist-read-private playlist-read-collaborative user-library-read user-modify-playback-state user-read-currently-playing user-read-playback-state',
                                                cache_handler=cache_handler,
                                                show_dialog=True)
@@ -51,7 +65,6 @@ def hello_world():
         return render_template("login.html", auth=auth_url)
     spotify = spotipy.Spotify(auth_manager=auth_manager)
     info = spotify.me()
-
     cursor.execute("SELECT wrap_name FROM wraps WHERE spotify_id = '" + info['id'] + "';")
     nlist = []
     for wrap_name in cursor:
@@ -60,44 +73,19 @@ def hello_world():
         wrap_name = wrap_name.replace("',)", "")
         nlist.append(wrap_name)
     session['errorCode'] = ''
+    session['shareCode'] = ''
     return render_template("home.html", name=info['display_name'], pfp=info['images'][1]['url'], strings_array = nlist)
+
+#CLICK ABOUT
 @app.route('/about', methods=['POST', 'GET'])
 def showAbout():
     return render_template("about.html")
 
+#SIGN OUT
 @app.route('/sign_out', methods=['POST', 'GET'])
 def sign_out():
     session.pop("token_info", None)
     return redirect('/')
-#Continue with Spotify
-#Spotify Authorization Code Flow
-#@app.route('/home', methods=['POST', 'GET'])
-#def login():
-#    #global sp
-#    #global info
-#    #CLIENT_ID = "6935cdfb27164343bad89b9ee5128309"
-#    #CLIENT_SECRET = "894aa7f0f33c4ac4be55664f5ea5d960"
-#    #REDIRECT_URI = "http://localhost:8000"
-#    #scope = "playlist-read-private playlist-read-collaborative user-library-read user-modify-playback-state"
-#    #token = util.prompt_for_user_token(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT_URI, show_dialog=True, scope=scope)
-#    #if token:
-#    #    sp = spotipy.Spotify(auth=token)
-#    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
-#    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
-#    if not auth_manager.validate_token(cache_handler.get_cached_token()):
-#        return redirect('/')
-#    spotify = spotipy.Spotify(auth_manager=auth_manager)
-#    info = spotify.me()
-#
-#    cursor.execute("SELECT wrap_name FROM wraps WHERE spotify_id = '" + info['id'] + "';")
-#    nlist = []
-#    for wrap_name in cursor:
-#        wrap_name = str(wrap_name)
-#        wrap_name = wrap_name.replace("('", "")
-#        wrap_name = wrap_name.replace("',)", "")
-#        nlist.append(wrap_name)
-#    return render_template("home.html", name=info['display_name'], pfp=info['images'][1]['url'], strings_array = nlist)
-
 
 #CREATE NEW WRAP
 @app.route('/newWrap', methods=['POST', 'GET'])
@@ -128,7 +116,6 @@ def newWrap():
         nlist.append(wrap_name)
     return render_template("home.html", strings_array = nlist, name=info['display_name'], pfp=info['images'][1]['url'], errorCode=session['errorCode'])
 
-
 #OPEN (X) WRAP
 @app.route('/openWrap', methods=['POST', 'GET'])
 def openWrap():
@@ -142,6 +129,7 @@ def openWrap():
     session['current_wrap'] = current_wrap
     playlists_array=[]
     covers_array=[]
+    names_array=[]
     cursor.execute("SELECT playlist FROM " + (current_wrap + "sp0tify92id" + info['id']) + ";")
     for playlist in cursor:
         playlist = str(playlist)
@@ -149,6 +137,8 @@ def openWrap():
         playlist = playlist.replace("',)", "")
         playlists_array.append(playlist) 
         covers_array.append(spotify.playlist_cover_image(playlist)[0]['url'])
+        results = spotify.user_playlist(playlist_id=playlist, fields="name")
+        names_array.append(results["name"])
         print(spotify.playlist_cover_image(playlist)[0]['url'])
     bg=""
     cursor.execute("SELECT background FROM " + (current_wrap + "sp0tify92id" + info['id']) + " WHERE row_id=1;")
@@ -206,9 +196,6 @@ def addBackground():
     #    playlists_array.append(playlist) 
     #    #covers_array.append(spotify.playlist_cover_image(playlist)[0]['url'])
     return redirect('/reloadBuild')
-
-
-
 
 #DELETE WRAP
 @app.route('/deleteWrap', methods=['POST', 'GET'])
@@ -272,7 +259,6 @@ def generateCode():
     session['shareCode'] = ("https://anchovy-emerging-definitely.ngrok-free.app/view/" + hash_value)
     return redirect('/reloadBuild')
 
-
 #OPENED SHARE LINK
 @app.route('/view/<hash_value>')
 def showWrap(hash_value):
@@ -318,7 +304,6 @@ def showWrap(hash_value):
     session['shareCode'] = ''
     return render_template("viewer.html", current=current_wrap, playlists_array=playlists_array,covers_array=covers_array, errorCode=session['errorCode'], background=bg)
 
-    
 #VIEWER CLICK PLAYLIST
 @app.route('/viewerPlayback', methods=['POST', 'GET'])
 def viewerPlayback():
@@ -336,7 +321,6 @@ def viewerPlayback():
     else:
         session['errorCode'] = ""
     return redirect('/view/' + session['currentlyViewing'])
-
 
 #reloadbuilder
 @app.route('/reloadBuild')

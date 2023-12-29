@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{current}} | Musicwrap</title>
+    <link rel="icon" href="../static/favicon.ico" type="image/x-icon">
+
+</head>
+<style>
+body {
+    text-align: center;
+    padding: 15px;
+    background-image: url({{background}});
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    height:100vh;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+
+
+}
+
+.elements {
+    padding: 15px;
+    display: flex;
+    width:75%;
+    margin:auto;
+    height:100%;
+    flex-wrap:wrap;
+    justify-content: center;
+    gap:20px;
+
+}
+
+.btn-playlist {
+    padding: 0px;
+    transition:0.3s;
+    margin:auto;
+    display:auto;
+    background-color: transparent;
+    width:200px;
+    height:200px;
+    border: 1px solid black;
+    max-width: 200px;
+    object-fit: fill;
+    background-size:cover;
+    background-position: center center;
+
+}
+
+.btn-playlist:hover{
+    border: 7px solid black;
+    width:210px;
+    height:210px;
+    max-width:210px;
+    cursor: pointer;
+}
+.img-playlist:hover{
+    background-color: rgba(0,0,0,1);
+    border-radius: 50px;
+}
+.img-playlist{
+    transition: 0.3s;
+}
+
+.bigdiv {
+    margin:auto;
+    display:flex;
+}
+
+.topelements {
+    background-color: transparent;
+    backdrop-filter: blur(20px);
+    width:fit-content;
+    height:fit-content;
+    padding:15px;
+    padding-top:8px;
+    padding-bottom:20px;
+    border-radius: 25px;
+    outline:1px solid black;
+    margin:auto;
+    background-color: rgba(255,255,255,0.35);
+    padding-right: 70px;
+    padding-left:70px;
+    justify-content:space-around;
+
+}
+
+h3{
+    color:rgb(0, 0, 0);
+}
+.btn-home{
+    background-color: white;
+    padding:5px;
+}
+.link{
+    color:black;
+    background-color: transparent;
+    backdrop-filter: blur(20px);
+    width:fit-content;
+    height:fit-content;
+    outline:1px solid black;
+    border-radius:2px;
+    margin:auto;
+    padding:2px;
+    background-color: rgba(255,255,255,0.5);
+
+}
+.logo{
+    width:100px;
+    height:30px;
+}
+
+
+</style>
+<body>
+    <div class="topelements">
+    <h3>{{errorCode}}</h3>
+    <h1>{{current}}</h1>
+    <img class = "logo" src="https://receiptify.herokuapp.com/assets/img/Spotify_Logo_RGB_Black.png" alt="spotify logo">
+    </div>
+    <div class="bigdiv">
+    <div class = "elements">
+    {% for item in playlists_array %}
+    <form action="/viewerPlayback" method="post">
+        <button class="btn-playlist" type="submit" value="Add" style="background-image: url({{covers_array[loop.index-1]}})"></button><br>
+        <a class="link" href={{playlists_array[loop.index-1]}} target="_blank" rel="noopener noreferrer">{{names_array[loop.index-1]}}</a>
+        <input type="hidden" name="playlist_item" value="{{item}}">
+    </form>
+    {% endfor %}
+    </div>
+</div>
+
+</body>
+</html>
