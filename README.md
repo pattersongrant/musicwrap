@@ -1,7 +1,7 @@
 # musicwrap
 Shareable and customizable Spotify playlist folders. Web app hosted online with PythonAnywhere.
 
-## **Why?**
+## *Why?*
 The native Spotify app does not allow users to share their playlist folders. Musicwrap allows users to share and further customize their playlist folders leading to more interactive music sharing between friends and online communities.
 
 
