@@ -1,5 +1,5 @@
 # musicwrap
-Shareable and customizable Spotify playlist folders. 
+**Shareable and customizable Spotify playlist folders. **
 
 
 Built with HTML/CSS frontend and Python/Flask backend; hosted online with PythonAnywhere.
