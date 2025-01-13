@@ -9,7 +9,7 @@ Built with HTML/CSS frontend and Python/Flask backend; hosted online with Python
 The native Spotify app does not allow users to share their playlist folders. Musicwrap lets users share and further customize their playlist folders (called wraps) leading to more interactive music sharing between friends and online communities.
 
 
-## Video Demo (Some audio later in the video)
+## Video Demo (Audio later on)
 
 https://github.com/user-attachments/assets/1953dddf-18a7-4b6d-b3db-3e0fd528f2c4
 
